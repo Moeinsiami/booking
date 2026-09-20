@@ -7,7 +7,7 @@ export default function Home() {
     <div>
       <Header />
       <main>
-        <h1 className="text-3xl underline">Hello world!</h1>
+        <h1 className="text-3xl">سلام و دورد بر فارسی </h1>
       </main>
       <Footer />
     </div>
