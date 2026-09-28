@@ -11,9 +11,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.8.0
         version: 1.8.0(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@splidejs/react-splide':
-        specifier: ^0.7.12
-        version: 0.7.12
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -615,12 +612,6 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
-
-  '@splidejs/react-splide@0.7.12':
-    resolution: {integrity: sha512-UfXH+j47jsMc4x5HA/aOwuuHPqn6y9+ZTNYPWDRD8iLKvIVMZlzq2unjUEvyDAU+TTVPZOXkG2Ojeoz0P4AkZw==}
-
-  '@splidejs/splide@4.1.4':
-    resolution: {integrity: sha512-5I30evTJcAJQXt6vJ26g2xEkG+l1nXcpEw4xpKh0/FWQ8ozmAeTbtniVtVmz2sH1Es3vgfC4SS8B2X4o5JMptA==}
 
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
@@ -3526,12 +3517,6 @@ snapshots:
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
-
-  '@splidejs/react-splide@0.7.12':
-    dependencies:
-      '@splidejs/splide': 4.1.4
-
-  '@splidejs/splide@4.1.4': {}
 
   '@swc/helpers@0.5.23':
     dependencies:
