@@ -1,9 +1,9 @@
 // import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
 import ShowCase from "@/components/home/ShowCase";
 import ImageSlider from "@/components/home/ImageSlider";
+import ReserveButton from "@/components/home/ReserveButton";
 
 export default function Home() {
   return (
@@ -12,8 +12,7 @@ export default function Home() {
       <main className="flex flex-col items-center text-center gap-6 py-10">
         <ShowCase />
         <ImageSlider />
-        <h3 className="">دربافت نوبت</h3>
-        <Button>دریافت نوبت</Button>
+        <ReserveButton />
         <h3 className="">نظر مشتریان </h3>
         {/* slider */}
         <div>
