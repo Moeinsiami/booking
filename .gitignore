@@ -1,0 +1,18 @@
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Database
+*.sqlite3
+
+# Python
+backend/venv/
+backend/**/__pycache__/
+*.py[cod]
+
+# Node / Frontend
+node_modules/
+.next/
+out/
