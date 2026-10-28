@@ -6,7 +6,7 @@ from django.db import models
 class Service(models.Model):
     name = models.CharField(max_length=150)
     duration_minutes = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.PositiveIntegerField(help_text="Price in Rials")
     is_active = models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -52,19 +52,21 @@ class Appointment(models.Model):
     barber = models.ForeignKey(Barber, on_delete=models.CASCADE, related_name="appointments")
     services = models.ManyToManyField(Service, related_name="appointments")
     customer_name = models.CharField(max_length=150)
-    customer_phone = models.CharField(max_length=30)
-    customer_email = models.EmailField()
+    customer_phone = models.CharField(max_length=30, db_index=True)
+    customer_email = models.EmailField(blank=True)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
-    total_price = models.DecimalField(max_digits=8, decimal_places=2)
-    deposit_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    # Rials: the old max_digits=8 overflowed at ~1M Rials
+    total_price = models.PositiveIntegerField(help_text="Total price in Rials")
+    deposit_amount = models.PositiveIntegerField(help_text="Deposit amount in Rials")
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING_PAYMENT,
     )
     expires_at = models.DateTimeField(null=True, blank=True)
-    stripe_session_id = models.CharField(max_length=255, blank=True)
+    payment_authority = models.CharField(max_length=255, blank=True, db_index=True)
+    payment_ref_id = models.CharField(max_length=64, blank=True)
 
     class Meta:
         ordering = ["-start_datetime"]
