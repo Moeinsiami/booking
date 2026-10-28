@@ -37,6 +37,6 @@ class AppointmentAdmin(admin.ModelAdmin):
         "status",
     )
     list_filter = ("status", "barber", "start_datetime")
-    search_fields = ("customer_name", "customer_phone", "customer_email", "stripe_session_id")
+    search_fields = ("customer_name", "customer_phone", "customer_email", "payment_authority")
     readonly_fields = ("id",)
     filter_horizontal = ("services",)
