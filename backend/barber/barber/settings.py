@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -131,7 +132,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Tehran"  # slot/day boundaries are computed in shop-local time
 
 USE_I18N = True
 
@@ -160,7 +161,25 @@ CORS_ALLOWED_ORIGINS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
+    "DEFAULT_THROTTLE_RATES": {"otp": "10/hour", "checkout": "20/hour"},
 }
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),  # no refresh flow: guests just re-verify by OTP
+}
+
+# Zarinpal. Sandbox accepts any 36-char merchant id.
+ZARINPAL_MERCHANT_ID = os.environ.get("ZARINPAL_MERCHANT_ID", "")
+ZARINPAL_SANDBOX = os.environ.get("ZARINPAL_SANDBOX", str(DEBUG)).lower() in ("true", "1")
+ZARINPAL_CALLBACK_URL = os.environ.get("ZARINPAL_CALLBACK_URL", "http://localhost:3000/payment/verify")
+
+# Celery (1-hour SMS reminders). Run: celery -A barber worker -l info
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+
+# OTP codes live in the cache; locmem is per-process, so set REDIS_URL when running more than one worker.
+if os.environ.get("REDIS_URL"):
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": os.environ["REDIS_URL"]}}
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Barbershop Reservation API",
