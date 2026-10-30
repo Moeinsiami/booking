@@ -7,9 +7,9 @@ export default function ReserveButton() {
       size="lg"
       nativeButton={false}
       render={<Link href="/reservation" />}
-      className="h-12 w-[calc(100%-2rem)] max-w-xs text-base font-bold sm:h-14 sm:w-full sm:max-w-sm sm:text-lg"
+      className="h-12 w-full max-w-xs text-base font-bold sm:h-14 sm:text-lg"
     >
-      دریافت نوبت
+      رزرو نوبت
     </Button>
   );
 }
