@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Image from "next/image";
@@ -53,7 +53,7 @@ const ImageSlider = () => {
   }, [api, current]);
 
   return (
-    <section className="w-full max-w-md sm:max-w-xl">
+    <section className="w-full max-w-md px-4 sm:max-w-xl">
       <Carousel
         setApi={setApi}
         opts={{
@@ -125,3 +125,4 @@ const ImageSlider = () => {
 };
 
 export default ImageSlider;
+
