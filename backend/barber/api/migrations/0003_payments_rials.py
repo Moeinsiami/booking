@@ -29,6 +29,10 @@ class Migration(migrations.Migration):
             name="customer_email",
             field=models.EmailField(blank=True, max_length=254),
         ),
+        migrations.RunSQL(
+            sql="DROP INDEX IF EXISTS api_appointment_customer_phone_b0942075; DROP INDEX IF EXISTS api_appointment_customer_phone_b0942075_like;",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.AlterField(
             model_name="appointment",
             name="customer_phone",
