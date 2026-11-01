@@ -1,13 +1,16 @@
 from calendar import monthrange
-from datetime import date as date_type, datetime, time, timedelta
+from datetime import UTC, date as date_type, datetime, time, timedelta
 from typing import Iterable
+from zoneinfo import ZoneInfo
 
+from django.conf import settings
 from django.db.models import Count, Q
 from django.utils import timezone
 
 from .models import Appointment, Barber, Service, Shift
 
 SLOT_STEP_MINUTES = 15
+SHOP_TZ = ZoneInfo(settings.SHOP_TIME_ZONE)
 
 
 def get_active_services(service_ids: Iterable[int]) -> list[Service]:
@@ -42,13 +45,12 @@ def get_active_appointments(barber_id: int, range_start: datetime, range_end: da
 
 
 def _day_bounds(target_date: date_type) -> tuple[datetime, datetime]:
-    day_start = timezone.make_aware(datetime.combine(target_date, time.min), timezone.get_current_timezone())
+    day_start = timezone.make_aware(datetime.combine(target_date, time.min), SHOP_TZ).astimezone(UTC)
     return day_start, day_start + timedelta(days=1)
 
 
 def _day_slots(shifts, appointments, day_start, day_end, duration: timedelta, now) -> list[str]:
-    """Local 'HH:MM' start times on one day; pure function over pre-fetched shifts/appointments."""
-    tz = timezone.get_current_timezone()
+    """UTC 'HH:MM' start times on one day; pure function over pre-fetched shifts/appointments."""
     step_delta = timedelta(minutes=SLOT_STEP_MINUTES)
     day_appts = [a for a in appointments if a.start_datetime < day_end and a.end_datetime > day_start]
 
@@ -64,7 +66,7 @@ def _day_slots(shifts, appointments, day_start, day_end, duration: timedelta, no
             slot_end = slot_start + duration
             overlaps = any(a.start_datetime < slot_end and a.end_datetime > slot_start for a in day_appts)
             if slot_start > now and not overlaps:
-                label = timezone.localtime(slot_start, tz).strftime("%H:%M")
+                label = slot_start.astimezone(UTC).strftime("%H:%M")
                 if label not in seen:
                     seen.add(label)
                     slots.append(label)
@@ -78,7 +80,7 @@ def get_available_slots(
     service_ids: Iterable[int],
 ) -> list[str]:
     if isinstance(date, datetime):
-        target_date = timezone.localtime(date).date() if timezone.is_aware(date) else date.date()
+        target_date = date.astimezone(SHOP_TZ).date() if timezone.is_aware(date) else date.date()
     elif isinstance(date, str):
         target_date = date_type.fromisoformat(date)
     else:
