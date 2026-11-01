@@ -35,6 +35,8 @@ if not SECRET_KEY:
         raise RuntimeError("DJANGO_SECRET_KEY environment variable must be set in production (DEBUG=False)!")
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if os.environ.get("DJANGO_ALLOWED_HOSTS") else []
+if DEBUG:
+    ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -132,7 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Asia/Tehran"  # slot/day boundaries are computed in shop-local time
+TIME_ZONE = "UTC"
+SHOP_TIME_ZONE = "Asia/Tehran"  # slot/day boundaries are computed in shop-local time
 
 USE_I18N = True
 
@@ -158,6 +161,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
