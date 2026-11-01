@@ -1,24 +1,24 @@
 import logging
 import re
 import secrets
-from datetime import date as date_type, datetime, time, timedelta
+from datetime import UTC, date as date_type, datetime, time, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Iterable
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 from rest_framework import status
-from rest_framework.exceptions import APIException, NotFound, Throttled, ValidationError
+from rest_framework.exceptions import APIException, AuthenticationFailed, NotFound, Throttled, ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import zarinpal
 from .models import Appointment, Barber
-from .selectors import get_active_appointments, get_active_services, get_available_slots, get_barbers_for_services
+from .selectors import SHOP_TZ, get_active_appointments, get_active_services, get_available_slots, get_barbers_for_services
 from .sms import send_sms
 from .tasks import send_reminder
 
@@ -90,6 +90,29 @@ def verify_otp(phone: str, code: str) -> str:
     return str(RefreshToken.for_user(user).access_token)
 
 
+def register_user(*, phone: str, password: str, name: str = "", email: str = "") -> str:
+    User = get_user_model()
+    user, created = User.objects.get_or_create(
+        username=phone,
+        defaults={"first_name": name, "email": email, "password": make_password(password)},
+    )
+    if not created:
+        if user.has_usable_password():
+            raise Conflict("An account with this phone number already exists.")
+        user.first_name = name or user.first_name
+        user.email = email or user.email
+        user.set_password(password)
+        user.save(update_fields=["first_name", "email", "password"])
+    return str(RefreshToken.for_user(user).access_token)
+
+
+def login_user(*, phone: str, password: str) -> str:
+    user = authenticate(username=phone, password=password)
+    if not user:
+        raise ValidationError({"password": "Invalid phone number or password."})
+    return str(RefreshToken.for_user(user).access_token)
+
+
 # ---------- quote / checkout ----------
 
 def calc_deposit(total: Decimal) -> Decimal:
@@ -118,7 +141,9 @@ def _hold_slot(*, quote: dict, barber_id: int | None, date: date_type, start_tim
         raise ValidationError({"barber": "No barber offers all the selected services."})
 
     label = start_time.strftime("%H:%M")
-    start = timezone.make_aware(datetime.combine(date, start_time))
+    start = timezone.make_aware(datetime.combine(date, start_time), UTC)
+    if start.astimezone(SHOP_TZ).date() != date:
+        start += timedelta(days=1)
     for barber in barbers:
         with transaction.atomic():
             # Lock the barber row so concurrent checkouts for the same barber are serialized.
