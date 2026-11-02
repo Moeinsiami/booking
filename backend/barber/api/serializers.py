@@ -43,7 +43,7 @@ class SlotsSerializer(serializers.Serializer):
     duration_minutes = serializers.IntegerField()
     total_price = serializers.IntegerField(help_text="Rials")
     deposit_amount = serializers.IntegerField(help_text="Rials, 50% of total")
-    slots = serializers.ListField(child=serializers.CharField(), help_text="Local HH:MM start times")
+    slots = serializers.ListField(child=serializers.CharField(), help_text="UTC HH:MM start times")
 
 
 # ---------- checkout / payment ----------
@@ -101,6 +101,16 @@ class OTPRequestSerializer(serializers.Serializer):
 
 class OTPVerifySerializer(OTPRequestSerializer):
     code = serializers.RegexField(r"^\d{5}$")
+
+
+class RegisterSerializer(OTPRequestSerializer):
+    password = serializers.CharField(min_length=6, write_only=True)
+    name = serializers.CharField(max_length=150, required=False, allow_blank=True, default="")
+    email = serializers.EmailField(required=False, allow_blank=True, default="")
+
+
+class LoginSerializer(OTPRequestSerializer):
+    password = serializers.CharField(write_only=True)
 
 
 class TokenSerializer(serializers.Serializer):

@@ -10,6 +10,8 @@ urlpatterns = [
     path("payments/zarinpal/verify/", views.ZarinpalVerifyView.as_view()),
     path("auth/otp/request/", views.OTPRequestView.as_view()),
     path("auth/otp/verify/", views.OTPVerifyView.as_view()),
+    path("auth/register/", views.RegisterView.as_view()),
+    path("auth/login/", views.LoginView.as_view()),
     path("me/appointments/", views.MyAppointmentsView.as_view()),
     path("me/appointments/<uuid:pk>/cancel/", views.CancelAppointmentView.as_view()),
 ]

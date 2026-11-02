@@ -11,10 +11,12 @@ from .serializers import (
     AppointmentSerializer,
     CheckoutResponseSerializer,
     CheckoutSerializer,
+    LoginSerializer,
     MonthAvailabilitySerializer,
     MonthQuerySerializer,
     OTPRequestSerializer,
     OTPVerifySerializer,
+    RegisterSerializer,
     ServiceSerializer,
     SlotsQuerySerializer,
     SlotsSerializer,
@@ -130,6 +132,26 @@ class OTPVerifyView(ThrottledPublicAPIView):
         s = OTPVerifySerializer(data=request.data)
         s.is_valid(raise_exception=True)
         token = services.verify_otp(s.validated_data["phone"], s.validated_data["code"])
+        return Response({"access": token})
+
+
+class RegisterView(PublicAPIView):
+    @extend_schema(request=RegisterSerializer, responses={201: TokenSerializer})
+    def post(self, request):
+        s = RegisterSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        d = s.validated_data
+        token = services.register_user(phone=d["phone"], password=d["password"], name=d["name"], email=d["email"])
+        return Response({"access": token}, status=status.HTTP_201_CREATED)
+
+
+class LoginView(PublicAPIView):
+    @extend_schema(request=LoginSerializer, responses=TokenSerializer)
+    def post(self, request):
+        s = LoginSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        d = s.validated_data
+        token = services.login_user(phone=d["phone"], password=d["password"])
         return Response({"access": token})
 
 
