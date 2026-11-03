@@ -2,6 +2,7 @@ from celery import shared_task
 from django.utils import timezone
 
 from .models import Appointment
+from .selectors import SHOP_TZ
 from .sms import send_sms
 
 
@@ -12,5 +13,5 @@ def send_reminder(appointment_id: str) -> None:
         pk=appointment_id, status=Appointment.Status.CONFIRMED, start_datetime__gt=timezone.now()
     ).first()
     if appt:
-        start = timezone.localtime(appt.start_datetime)
+        start = appt.start_datetime.astimezone(SHOP_TZ)
         send_sms(appt.customer_phone, f"یادآوری: نوبت شما با {appt.barber.name} ساعت {start:%H:%M} است.")
