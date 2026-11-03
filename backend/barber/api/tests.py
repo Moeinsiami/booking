@@ -258,6 +258,54 @@ class ApiFlowTests(TestCase):
         self.assertEqual(self.client.post(f"/api/v1/me/appointments/{mine.id}/cancel/", **auth).json()["status"], "CANCELLED")
         self.assertEqual(self.client.post(f"/api/v1/me/appointments/{mine.id}/cancel/", **auth).status_code, 409)
 
+    def test_register_and_login_flow(self):
+        # Register new user
+        r = self.client.post(
+            "/api/v1/auth/register/",
+            {"phone": "0912 555 6677", "password": "secretpassword", "name": "Ali"},
+            content_type="application/json",
+        )
+        self.assertEqual(r.status_code, 201)
+        self.assertIn("access", r.json())
+
+        # Duplicate register conflicts
+        dup = self.client.post(
+            "/api/v1/auth/register/",
+            {"phone": "09125556677", "password": "otherpassword"},
+            content_type="application/json",
+        )
+        self.assertEqual(dup.status_code, 409)
+
+        # Login with valid password
+        login_ok = self.client.post(
+            "/api/v1/auth/login/",
+            {"phone": "+989125556677", "password": "secretpassword"},
+            content_type="application/json",
+        )
+        self.assertEqual(login_ok.status_code, 200)
+        self.assertIn("access", login_ok.json())
+
+        # Login with wrong password fails
+        login_bad = self.client.post(
+            "/api/v1/auth/login/",
+            {"phone": "09125556677", "password": "wrongpassword"},
+            content_type="application/json",
+        )
+        self.assertEqual(login_bad.status_code, 400)
+
+    def test_utc_slot_conversion_from_tehran_shift(self):
+        from zoneinfo import ZoneInfo
+        tehran = ZoneInfo("Asia/Tehran")
+        day = self.day + timedelta(days=2)
+        # Shift from 12:30 to 13:30 Tehran time -> 09:00 to 10:00 UTC (+03:30)
+        Shift.objects.create(
+            barber=self.barber,
+            start_datetime=timezone.make_aware(datetime.combine(day, time(12, 30)), tehran),
+            end_datetime=timezone.make_aware(datetime.combine(day, time(13, 30)), tehran),
+        )
+        r = self.client.get(f"/api/v1/availability/slots/?service_ids={self.haircut.id}&date={day}").json()
+        self.assertEqual(r["slots"], ["09:00", "09:15", "09:30"])
+
     def test_normalize_phone(self):
         for raw in ("09121234567", "+989121234567", "00989121234567", "9121234567", "۰۹۱۲۱۲۳۴۵۶۷"):
             self.assertEqual(normalize_phone(raw), "09121234567")
