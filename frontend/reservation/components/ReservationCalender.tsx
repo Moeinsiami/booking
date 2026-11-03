@@ -144,7 +144,7 @@ export default function ReservationCalender() {
 
   const selectedDateIso = selectedDate ? toGregorianDate(selectedDate) : ""
 
-  const handleCheckout = async (e: React.FormEvent) => {
+  const handleCheckout = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!selectedDate || !selectedSlotUtc || !selectedIds.length) return
     setSubmitting(true)
