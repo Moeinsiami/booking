@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Scissors } from "lucide-react";
+import { Scissors, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Header = () => (
@@ -9,14 +9,26 @@ const Header = () => (
         <Scissors className="size-5 text-primary" aria-hidden />
         <span>خط کج</span>
       </Link>
-      <Button
-        size="sm"
-        nativeButton={false}
-        render={<Link href="/reservation" />}
-        className="h-10 px-4"
-      >
-        رزرو نوبت
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/auth" />}
+          className="h-10 px-3"
+        >
+          <User className="size-4" />
+          <span>ورود / حساب من</span>
+        </Button>
+        <Button
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/reservation" />}
+          className="h-10 px-4"
+        >
+          رزرو نوبت
+        </Button>
+      </div>
     </div>
   </header>
 );
