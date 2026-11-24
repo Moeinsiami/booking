@@ -1,18 +1,32 @@
-# Environment and Secrets
+# Secrets
 .env
 .env.*
 !.env.example
-*.local
-
-# Database
-*.sqlite3
+*.pem
 
 # Python
-backend/venv/
-backend/**/__pycache__/
+venv/
+.venv/
+__pycache__/
 *.py[cod]
+*.sqlite3
+staticfiles/
+media/
 
-# Node / Frontend
+# Node / Next.js
 node_modules/
 .next/
 out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.pnpm-debug.log*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
